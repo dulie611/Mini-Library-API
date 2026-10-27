@@ -1,0 +1,8 @@
+{
+  "liveServer.settings.ignoreFiles": [
+    ".vscode/**",
+    "**/*.scss",
+    "library.json", // Ignores a specific file in the root
+    "library/**" // Ignores an entire folder and everything inside it
+  ]
+}
