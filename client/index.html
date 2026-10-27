@@ -7,5 +7,56 @@
     <link rel="stylesheet" href="styles.css" />
     <script type="module" defer src="script.js"></script>
   </head>
-  <body></body>
+  <body>
+    <h1>Mini Library API</h1>
+    <form id="add-author-form">
+      <h2>Add Author</h2>
+      <label for="author">Author:</label>
+      <input id="author" type="text" placeholder="Enter Author Name" />
+      <button>Submit</button>
+    </form>
+    <form id="add-book-form">
+      <h2>Add Book</h2>
+
+      <label for="title">Title:</label>
+      <input id="title" type="text" placeholder="Book Title" />
+
+      <label for="add-book-author-id">Author ID:</label>
+      <input id="authorId" type="text" placeholder="Author ID" />
+
+      <label for="year">Year:</label>
+      <input id="year" type="text" placeholder="Publication Year" />
+
+      <label for="add-book-isAvailable">Available:</label>
+      <input
+        id="add-book-isAvailable"
+        type="text"
+        placeholder="Enter true or false"
+      />
+
+      <button>Submit</button>
+    </form>
+    <form id="update-book-availability-form">
+      <h2>Update book Availability</h2>
+      <label for="update-book-author-id">Author ID:</label>
+      <input id="update-book-author-id" type="text" placeholder="Author ID" />
+
+      <label for="update-book-isAvailable">Available:</label>
+      <input
+        id="update-book-isAvailable"
+        type="text"
+        placeholder="Enter true or false"
+      />
+
+      <button>Submit</button>
+    </form>
+
+    <form id="delete-book-form">
+      <h2>Delete Book</h2>
+      <label for="delete-book-author-id">Author ID:</label>
+      <input id="delete-book-author-id" type="text" placeholder="Author ID" />
+
+      <button>Submit</button>
+    </form>
+  </body>
 </html>
