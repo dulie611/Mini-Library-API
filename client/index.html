@@ -14,6 +14,7 @@
       <label for="author">Author:</label>
       <input id="author" type="text" placeholder="Enter Author Name" />
       <button>Submit</button>
+      <p class="error-message hidden">Enter a valid author name!</p>
     </form>
     <form id="add-book-form">
       <h2>Add Book</h2>
@@ -22,10 +23,10 @@
       <input id="title" type="text" placeholder="Book Title" />
 
       <label for="add-book-author-id">Author ID:</label>
-      <input id="authorId" type="text" placeholder="Author ID" />
+      <input id="add-book-author-id" type="number" placeholder="Author ID" />
 
       <label for="year">Year:</label>
-      <input id="year" type="text" placeholder="Publication Year" />
+      <input id="year" type="number" placeholder="Publication Year" />
 
       <label for="add-book-isAvailable">Available:</label>
       <input
@@ -35,6 +36,9 @@
       />
 
       <button>Submit</button>
+      <p class="error-message hidden">
+        Invalid Title, Author ID, Year or Availability
+      </p>
     </form>
     <form id="update-book-availability-form">
       <h2>Update book Availability</h2>
