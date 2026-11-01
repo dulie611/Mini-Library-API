@@ -19,6 +19,27 @@ const addAuthor = async function (authorName) {
   }
 };
 
+const addBook = async function (book) {
+  try {
+    const response = await fetch("127.0.0.1:8000/api/books", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(book),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error! Status Code: ${response.status}`);
+    }
+
+    const data = response.json();
+    console.log("New book added", data);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const addAuthorForm = document.getElementById("add-author-form");
 const addBookForm = document.getElementById("add-book-form");
 const updateBookAvailability = document.getElementById(
@@ -26,7 +47,6 @@ const updateBookAvailability = document.getElementById(
 );
 const deleteBookForm = document.getElementById("delete-book-form");
 
-// FIXME
 updateBookAvailability.addEventListener("submit", function (event) {
   event.preventDefault();
 
@@ -112,11 +132,19 @@ addBookForm.addEventListener("submit", function (event) {
     addBookForm.querySelector("#year").style.border = "solid 2px red";
   }
 
-  if (!titleInput || authorIdInput <= 0 || year <= 0) {
+  if (
+    !titleInput ||
+    authorIdInput <= 0 ||
+    year <= 0 ||
+    typeof availability !== "boolean"
+  ) {
     console.error("Invalid Title, Author ID, Year or Availability");
     addBookForm.querySelector(".error-message").classList.remove("hidden");
     return;
   }
+
+  addBook({ titleInput, authorIdInput, yearInput, availability });
+  addBookForm.reset();
 });
 
 addAuthorForm.addEventListener("submit", function (event) {
