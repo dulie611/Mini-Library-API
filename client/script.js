@@ -114,22 +114,24 @@ addBookForm.addEventListener("submit", function (event) {
   } else if (availability === "false") {
     availability = false;
   } else {
-    addBookForm.querySelector("#add-book-isAvailable").style.border =
-      "solid 2px red";
+    addBookForm
+      .querySelector("#add-book-isAvailable")
+      .classList.add("error-border");
     addBookForm.querySelector(".error-message").classList.remove("hidden");
   }
 
   if (!titleInput) {
-    addBookForm.querySelector("#title").style.border = "solid 2px red";
+    addBookForm.querySelector("#title").classList.add("error-border");
   }
 
   if (authorIdInput <= 0) {
-    addBookForm.querySelector("#add-book-author-id").style.border =
-      "solid 2px red";
+    addBookForm
+      .querySelector("#add-book-author-id")
+      .classList.add("error-border");
   }
 
   if (yearInput <= 0) {
-    addBookForm.querySelector("#year").style.border = "solid 2px red";
+    addBookForm.querySelector("#year").classList.add("error-border");
   }
 
   if (
@@ -144,6 +146,24 @@ addBookForm.addEventListener("submit", function (event) {
   }
 
   addBook({ titleInput, authorIdInput, yearInput, availability });
+
+  const authorIdElement = document.getElementById("add-book-author-id");
+  const bookTitleElement = document.getElementById("title");
+  const yearElement = document.getElementById("year");
+  const availableElement = document.getElementById("add-book-isAvailable");
+
+  if (
+    authorIdElement.classList.contains("error-border") ||
+    bookTitleElement.classList.contains("error-border") ||
+    yearElement.classList.contains("error-border") ||
+    availableElement.classList.contains("error-border")
+  ) {
+    authorIdElement.classList.remove("error-border");
+    bookTitleElement.classList.remove("error-border");
+    yearElement.classList.remove("error-border");
+    availableElement.classList.remove("error-border");
+  }
+
   addBookForm.reset();
 });
 
