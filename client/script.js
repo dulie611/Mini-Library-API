@@ -26,6 +26,50 @@ const updateBookAvailability = document.getElementById(
 );
 const deleteBookForm = document.getElementById("delete-book-form");
 
+// FIXME
+updateBookAvailability.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const errorMessage = updateBookAvailability.querySelector(".error-message");
+
+  if (!errorMessage.classList.contains("hidden")) {
+    errorMessage.classList.add("hidden");
+  }
+
+  const authorIdInput = document.getElementById("update-book-author-id").value;
+  let availability = document
+    .getElementById("update-book-isAvailable")
+    .value.trim()
+    .toLowerCase();
+
+  if (availability === "true") {
+    availability = true;
+  } else if (availability === "false") {
+    availability = false;
+  } else {
+    updateBookAvailability
+      .querySelector("#update-book-isAvailable")
+      .classList.add("error-border");
+    updateBookAvailability
+      .querySelector(".error-message")
+      .classList.remove("hidden");
+  }
+
+  if (authorIdInput <= 0) {
+    updateBookAvailability
+      .querySelector("#update-book-author-id")
+      .classList.add("error-border");
+    updateBookAvailability
+      .querySelector(".error-message")
+      .classList.remove("hidden");
+  }
+
+  if (authorIdInput <= 0 || typeof availability !== "boolean") {
+    console.error("Invalid Author ID or Availability");
+    return;
+  }
+});
+
 addBookForm.addEventListener("submit", function (event) {
   event.preventDefault();
 
@@ -50,7 +94,6 @@ addBookForm.addEventListener("submit", function (event) {
   } else if (availability === "false") {
     availability = false;
   } else {
-    console.log("here");
     addBookForm.querySelector("#add-book-isAvailable").style.border =
       "solid 2px red";
     addBookForm.querySelector(".error-message").classList.remove("hidden");

@@ -4,3 +4,6 @@
 .hidden {
   display: none;
 }
+.error-border {
+  border: solid 2px red;
+}

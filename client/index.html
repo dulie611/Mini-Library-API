@@ -43,7 +43,7 @@
     <form id="update-book-availability-form">
       <h2>Update book Availability</h2>
       <label for="update-book-author-id">Author ID:</label>
-      <input id="update-book-author-id" type="text" placeholder="Author ID" />
+      <input id="update-book-author-id" type="number" placeholder="Author ID" />
 
       <label for="update-book-isAvailable">Available:</label>
       <input
@@ -53,6 +53,7 @@
       />
 
       <button>Submit</button>
+      <p class="error-message hidden">Invalid Author ID or Availability</p>
     </form>
 
     <form id="delete-book-form">
