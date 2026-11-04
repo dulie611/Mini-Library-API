@@ -4,11 +4,31 @@ import fs from "node:fs";
 const server = http.createServer((req, res) => {
   const { url, method } = req;
   const parts = url.split("/");
+  
 
   // books routes
   if (parts.at(2) === "books") {
     // GET /api/books
     if (parts.at(-1) === "books" && method === "GET") {
+      fs.readFile('./library/library.json','utf-8',(err,data)=> {
+        if (err) {
+          res.writeHead(500,{
+            'Content-type':'text/plain'
+          })
+          res.end('Error reading file.')
+          return
+        }
+        
+        const { books, authors } = JSON.parse(data)
+        
+        res.writeHead(200,{
+          'Content-type': 'application/json'
+        })
+        res.end(JSON.stringify(books))
+      })
+   
+  
+      
       // GET /api/books/:id
     } else if (
       parts.at(2) === "books" &&
