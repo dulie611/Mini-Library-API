@@ -4,6 +4,17 @@ import fs from "node:fs";
 const server = http.createServer((req, res) => {
   const { url, method } = req;
   const parts = url.split("/");
+  console.log(url, method);
+
+  // CORS Preflight request
+  if (url === "/api/books" && method === "OPTIONS") {
+    res.writeHead(204, {
+      "Access-Control-Allow-Origin": "*", // which website is allowed to send request to server
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS", // what http methods are allowed to be sent to server
+      "Access-Control-Allow-Headers": "Content-Type",
+    });
+    res.end();
+  }
 
   // books routes
   if (parts.at(2) === "books") {
@@ -61,6 +72,71 @@ const server = http.createServer((req, res) => {
       });
       // POST /api/books
     } else if (parts.at(-1) === "books" && method === "POST") {
+      let body = "";
+      req.on("data", (chunk) => {
+        body += chunk;
+      });
+      req.on("end", () => {
+        const bookData = JSON.parse(body);
+
+        if (
+          bookData.title === "" ||
+          bookData.authorId <= 0 ||
+          bookData.year <= 0 ||
+          typeof bookData.available !== "boolean" ||
+          typeof bookData.title !== "string" ||
+          typeof bookData.authorId !== "number" ||
+          typeof bookData.year !== "number"
+        ) {
+          res.writeHead(400, {
+            "Content-type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          });
+          res.end(JSON.stringify({ message: "Invalid author data!" }));
+          return;
+        }
+
+        fs.readFile("./library/library.json", "utf-8", (err, data) => {
+          if (err) {
+            res.writeHead(500, {
+              "Content-type": "application/json",
+            });
+            res.end(JSON.stringify({ message: "Error reading file." }));
+          }
+
+          const { authors, books } = JSON.parse(data);
+          const author = authors.find((el) => el.id === bookData.authorId);
+
+          if (!author) {
+            res.writeHead(400, {
+              "Content-type": "application/json",
+            });
+            res.end(JSON.stringify({ message: "Author does not exist!" }));
+            return;
+          }
+
+          bookData.id = Math.max(...books.map((el) => el.id)) + 1;
+
+          fs.writeFile(
+            "./library/library.json",
+            JSON.stringify({ authors, books }),
+            "utf-8",
+            (err) => {
+              if (err) {
+                res.writeHead(500, {
+                  "Content-type": "application/json",
+                });
+                res.end(JSON.stringify({ message: "Error writing file!" }));
+              }
+              res.writeHead(200, {
+                "Content-type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+              });
+              res.end(JSON.stringify(bookData));
+            },
+          );
+        });
+      });
       // PATCH /api/books/:id
     } else if (
       parts.at(2) === "books" &&
