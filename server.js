@@ -14,6 +14,15 @@ const server = http.createServer((req, res) => {
       "Access-Control-Allow-Headers": "Content-Type",
     });
     res.end();
+    return;
+  } else if (url.startsWith("/api/books/") && method === "OPTIONS") {
+    res.writeHead(204, {
+      "Access-Control-Allow-Origin": "*", // which website is allowed to send request to server
+      "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS", // what http methods are allowed to be sent to server
+      "Access-Control-Allow-Headers": "Content-Type",
+    });
+    res.end();
+    return;
   }
 
   // books routes
@@ -128,7 +137,7 @@ const server = http.createServer((req, res) => {
                 });
                 res.end(JSON.stringify({ message: "Error writing file!" }));
               }
-              res.writeHead(200, {
+              res.writeHead(201, {
                 "Content-type": "application/json",
                 "Access-Control-Allow-Origin": "*",
               });
@@ -143,6 +152,77 @@ const server = http.createServer((req, res) => {
       !Number.isNaN(Number(parts.at(-1))) &&
       method === "PATCH"
     ) {
+      let body = "";
+      req.on("data", (chunk) => {
+        body += chunk;
+      });
+      req.on("end", () => {
+        const bookData = JSON.parse(body);
+
+        if (
+          typeof bookData.available !== "boolean" ||
+          typeof bookData.authorId !== "number" ||
+          bookData.authorId <= 0
+        ) {
+          res.writeHead(400, {
+            "Content-type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          });
+          res.end(
+            JSON.stringify({ message: "Invalid Author ID or Availability!" }),
+          );
+          return;
+        }
+
+        fs.readFile("./library/library.json", "utf-8", (err, data) => {
+          if (err) {
+            res.writeHead(500, {
+              "Content-type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            });
+            res.end(JSON.stringify({ message: "Error reading file!" }));
+            return;
+          }
+
+          const { books, authors } = JSON.parse(data);
+          const bookToUpdate = books.find(
+            (el) => el.authorId === bookData.authorId,
+          );
+
+          if (!bookToUpdate) {
+            res.writeHead(400, {
+              "Content-type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            });
+            res.end(JSON.stringify({ message: "Author does not exist!" }));
+            return;
+          }
+
+          bookToUpdate.available = bookData.available;
+
+          fs.writeFile(
+            "./library/library.json",
+            JSON.stringify({ books, authors }),
+            "utf-8",
+            (err) => {
+              if (err) {
+                res.writeHead(500, {
+                  "Content-type": "application/json",
+                  "Access-Control-Allow-Origin": "*",
+                });
+                res.end(JSON.stringify({ message: "Error writing file" }));
+                return;
+              }
+              res.writeHead(200, {
+                "Content-type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+              });
+              res.end(JSON.stringify(bookToUpdate));
+              return;
+            },
+          );
+        });
+      });
       // DELETE /api/books/:id
     } else if (
       parts.at(2) === "books" &&
