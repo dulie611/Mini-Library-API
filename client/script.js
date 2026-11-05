@@ -40,6 +40,30 @@ const addBook = async function (book) {
   }
 };
 
+const updateBook = async function (book) {
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/books/${book.authorId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify(book),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error! Status Code: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Book updated", data);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const addAuthorForm = document.getElementById("add-author-form");
 const addBookForm = document.getElementById("add-book-form");
 const updateBookAvailability = document.getElementById(
@@ -56,7 +80,9 @@ updateBookAvailability.addEventListener("submit", function (event) {
     errorMessage.classList.add("hidden");
   }
 
-  const authorIdInput = document.getElementById("update-book-author-id").value;
+  const authorIdInput = Number(
+    document.getElementById("update-book-author-id").value,
+  );
   let availability = document
     .getElementById("update-book-isAvailable")
     .value.trim()
@@ -88,6 +114,21 @@ updateBookAvailability.addEventListener("submit", function (event) {
     console.error("Invalid Author ID or Availability");
     return;
   }
+
+  const authorIdElement = document.getElementById("update-book-author-id");
+  const availableElement = document.getElementById("update-book-isAvailable");
+
+  if (
+    authorIdElement.classList.contains("error-border") ||
+    availableElement.classList.contains("error-border")
+  ) {
+    authorIdElement.classList.remove("error-border");
+    availableElement.classList.remove("error-border");
+  }
+
+  updateBook({ authorId: authorIdInput, available: availability });
+
+  updateBookAvailability.reset();
 });
 
 addBookForm.addEventListener("submit", function (event) {
