@@ -64,12 +64,63 @@ const updateBook = async function (book) {
   }
 };
 
+const deleteBook = async function (authorId) {
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/books/${authorId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify(authorId),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error! Status Code: ${response.status}`);
+    }
+
+    console.log("Book deleted!");
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const addAuthorForm = document.getElementById("add-author-form");
 const addBookForm = document.getElementById("add-book-form");
 const updateBookAvailability = document.getElementById(
   "update-book-availability-form",
 );
 const deleteBookForm = document.getElementById("delete-book-form");
+
+deleteBookForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const errorMessage = deleteBookForm.querySelector(".error-message");
+
+  if (!errorMessage.classList.contains("hidden")) {
+    errorMessage.classList.add("hidden");
+  }
+
+  const authorId = Number(
+    document.getElementById("delete-book-author-id").value.trim(),
+  );
+  const authorIdElement = document.getElementById("delete-book-author-id");
+
+  if (authorId <= 0) {
+    errorMessage.classList.remove("hidden");
+    authorIdElement.classList.add("error-border");
+    console.error("Invalid Author ID!");
+    return;
+  }
+
+  if (authorIdElement.classList.contains("error-border")) {
+    authorIdElement.classList.remove("error-border");
+  }
+  deleteBook(authorId);
+  deleteBookForm.reset();
+});
 
 updateBookAvailability.addEventListener("submit", function (event) {
   event.preventDefault();
