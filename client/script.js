@@ -21,7 +21,7 @@ const addAuthor = async function (authorName) {
 
 const addBook = async function (book) {
   try {
-    const response = await fetch("127.0.0.1:8000/api/books", {
+    const response = await fetch("http://127.0.0.1:8000/api/books", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -33,7 +33,7 @@ const addBook = async function (book) {
       throw new Error(`HTTP Error! Status Code: ${response.status}`);
     }
 
-    const data = response.json();
+    const data = await response.json();
     console.log("New book added", data);
   } catch (err) {
     console.error(err);
@@ -99,20 +99,18 @@ addBookForm.addEventListener("submit", function (event) {
     addBookForm.querySelector(".error-message").classList.add("hidden");
   }
 
-  const titleInput = document.getElementById("title").value.trim();
-  const authorIdInput = document
-    .getElementById("add-book-author-id")
-    .value.trim();
-  const yearInput = document.getElementById("year").value;
-  let availability = document
+  const title = document.getElementById("title").value.trim();
+  const authorId = Number(document.getElementById("add-book-author-id").value);
+  const year = Number(document.getElementById("year").value);
+  let available = document
     .getElementById("add-book-isAvailable")
     .value.trim()
     .toLowerCase();
 
-  if (availability === "true") {
-    availability = true;
-  } else if (availability === "false") {
-    availability = false;
+  if (available === "true") {
+    available = true;
+  } else if (available === "false") {
+    available = false;
   } else {
     addBookForm
       .querySelector("#add-book-isAvailable")
@@ -120,32 +118,27 @@ addBookForm.addEventListener("submit", function (event) {
     addBookForm.querySelector(".error-message").classList.remove("hidden");
   }
 
-  if (!titleInput) {
+  if (!title) {
     addBookForm.querySelector("#title").classList.add("error-border");
   }
 
-  if (authorIdInput <= 0) {
+  if (authorId <= 0) {
     addBookForm
       .querySelector("#add-book-author-id")
       .classList.add("error-border");
   }
 
-  if (yearInput <= 0) {
+  if (year <= 0) {
     addBookForm.querySelector("#year").classList.add("error-border");
   }
 
-  if (
-    !titleInput ||
-    authorIdInput <= 0 ||
-    year <= 0 ||
-    typeof availability !== "boolean"
-  ) {
+  if (!title || authorId <= 0 || year <= 0 || typeof available !== "boolean") {
     console.error("Invalid Title, Author ID, Year or Availability");
     addBookForm.querySelector(".error-message").classList.remove("hidden");
     return;
   }
 
-  addBook({ titleInput, authorIdInput, yearInput, availability });
+  addBook({ title, authorId, year, available });
 
   const authorIdElement = document.getElementById("add-book-author-id");
   const bookTitleElement = document.getElementById("title");
