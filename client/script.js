@@ -78,10 +78,12 @@ const deleteBook = async function (authorId) {
     );
 
     if (!response.ok) {
+      const data = await response.json();
+      console.log(data);
       throw new Error(`HTTP Error! Status Code: ${response.status}`);
+    } else {
+      console.log("Book deleted!");
     }
-
-    console.log("Book deleted!");
   } catch (err) {
     console.error(err);
   }
@@ -104,9 +106,9 @@ deleteBookForm.addEventListener("submit", function (event) {
   }
 
   const authorId = Number(
-    document.getElementById("delete-book-author-id").value.trim(),
+    document.getElementById("delete-book-id").value.trim(),
   );
-  const authorIdElement = document.getElementById("delete-book-author-id");
+  const authorIdElement = document.getElementById("delete-book-id");
 
   if (authorId <= 0) {
     errorMessage.classList.remove("hidden");
