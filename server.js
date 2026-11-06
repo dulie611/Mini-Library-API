@@ -18,7 +18,7 @@ const server = http.createServer((req, res) => {
   } else if (url.startsWith("/api/books/") && method === "OPTIONS") {
     res.writeHead(204, {
       "Access-Control-Allow-Origin": "*", // which website is allowed to send request to server
-      "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS", // what http methods are allowed to be sent to server
+      "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS", // what http methods are allowed to be sent to server
       "Access-Control-Allow-Headers": "Content-Type",
     });
     res.end();
@@ -229,6 +229,70 @@ const server = http.createServer((req, res) => {
       !Number.isNaN(Number(parts.at(-1))) &&
       method === "DELETE"
     ) {
+      let body = "";
+      req.on("data", (chunk) => {
+        body += chunk;
+      });
+      req.on("end", () => {
+        const bookIdData = JSON.parse(body);
+        console.log(bookIdData);
+
+        if (bookIdData <= 0 || typeof bookIdData !== "number") {
+          res.writeHead(400, {
+            "Content-type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          });
+          res.end(JSON.stringify({ message: "Invalid Book ID" }));
+          return;
+        }
+
+        fs.readFile("./library/library.json", "utf-8", (err, data) => {
+          if (err) {
+            res.writeHead(500, {
+              "Content-type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            });
+            res.end(JSON.stringify({ message: "Error reading file!" }));
+            return;
+          }
+
+          const { authors, books } = JSON.parse(data);
+
+          const bookToDelete = books.find((el) => el.id === bookIdData);
+          if (!bookToDelete) {
+            res.writeHead(400, {
+              "Content-type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            });
+            res.end(JSON.stringify({ message: "Book does not exist!" }));
+            return;
+          }
+
+          const newBooksData = books.filter((el) => el.id !== bookToDelete.id);
+
+          fs.writeFile(
+            "./library/library.json",
+            JSON.stringify({ authors, books: newBooksData }),
+            "utf-8",
+            (err) => {
+              if (err) {
+                res.writeHead(500, {
+                  "Content-type": "application/json",
+                  "Access-Control-Allow-Origin": "*",
+                });
+                res.end(JSON.stringify({ message: "Error writing file!" }));
+                return;
+              }
+
+              res.writeHead(204, {
+                "Content-type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+              });
+              res.end();
+            },
+          );
+        });
+      });
     }
     // authors routes
   } else if (parts.at(2) === "authors") {
