@@ -296,6 +296,25 @@ const server = http.createServer((req, res) => {
     }
     // authors routes
   } else if (parts.at(2) === "authors") {
+    // GET /api/authors
+    if(parts.at(-1) === 'authors' && method === 'GET') {
+      fs.readFile('./library/library.json', 'utf-8', (err,data) => {
+        if(err) {
+          res.writeHead(500, {
+            'Content-type':'text/plain'
+          })
+          res.end('Error reading file!')
+          return;
+        }
+        
+        const { authors } = JSON.parse(data)
+        
+        res.writeHead(200, {
+          'Content-type:': 'application/json'
+        })
+        res.end(JSON.stringify(authors))
+      })
+    }
   }
 });
 
