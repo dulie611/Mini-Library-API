@@ -314,6 +314,27 @@ const server = http.createServer((req, res) => {
         })
         res.end(JSON.stringify(authors))
       })
+      // GET /api/authors/:id
+    } else if (parts.at(2) === 'authors' && !Number.NaN(Number(parts.at(-1))) && methd === 'GET') {
+      const id = Number(parts.at(-1));
+      
+      fs.readFile('./library/library.json', 'utf-8', (err,data) => {
+        if(err) {
+          res.writeFile(500, {
+            'Content-type': 'application/json'
+          })
+          const {authors} = JSON.parse(data)
+          const authorData = authors.find(el => el.id === id)
+          if(!authorData) {
+            res.writeHead(404, {
+              'Content-type': 'application/json'
+            })
+            res.end(JSON.stringify({message: 'Author does not exist'}))
+            return  
+          }
+          res.end(JSON.stringify(authorData))
+        }
+      })
     }
   }
 });
