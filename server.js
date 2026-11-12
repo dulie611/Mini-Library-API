@@ -422,6 +422,17 @@ const server = http.createServer((req, res) => {
           );
         });
       });
+      //   GET /api/authors/:id/books
+    } else if (
+      parts.at(2) === "authors" &&
+      !Number.isNaN(Number(parts.at(3))) &&
+      parts.at(4) === "books" &&
+      method === "GET"
+    ) {
+      res.writeHead(200, {
+        "Content-type": "text/plain",
+      });
+      res.end("Request received!");
     }
   }
 });
