@@ -170,8 +170,8 @@ const server = http.createServer((req, res) => {
 
         if (
           typeof bookData.available !== "boolean" ||
-          typeof bookData.authorId !== "number" ||
-          bookData.authorId <= 0
+          typeof bookData.id !== "number" ||
+          bookData.id <= 0
         ) {
           res.writeHead(400, {
             "Content-type": "application/json",
@@ -194,9 +194,7 @@ const server = http.createServer((req, res) => {
           }
 
           const { books, authors } = JSON.parse(data);
-          const bookToUpdate = books.find(
-            (el) => el.authorId === bookData.authorId,
-          );
+          const bookToUpdate = books.find((el) => el.id === bookData.id);
 
           if (!bookToUpdate) {
             res.writeHead(400, {

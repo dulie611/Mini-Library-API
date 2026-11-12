@@ -1,18 +1,18 @@
 const addAuthor = async function (authorName) {
   try {
-    const response = await fetch("127.0.0.1:8000/api/authors", {
+    const response = await fetch("http://127.0.0.1:8000/api/authors", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
       },
-      body: JSON.stringify({ authorName }),
+      body: JSON.stringify({ name: authorName }),
     });
 
     if (!response.ok) {
       throw new Error(`HTTP Error! Status Code: ${response.status}`);
     }
 
-    const data = response.json();
+    const data = await response.json();
     console.log("New author added", data);
   } catch (err) {
     console.error(err);
@@ -42,16 +42,13 @@ const addBook = async function (book) {
 
 const updateBook = async function (book) {
   try {
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/books/${book.authorId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify(book),
+    const response = await fetch(`http://127.0.0.1:8000/api/books/${book.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-type": "application/json",
       },
-    );
+      body: JSON.stringify(book),
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP Error! Status Code: ${response.status}`);
@@ -133,9 +130,7 @@ updateBookAvailability.addEventListener("submit", function (event) {
     errorMessage.classList.add("hidden");
   }
 
-  const authorIdInput = Number(
-    document.getElementById("update-book-author-id").value,
-  );
+  const bookIdInput = Number(document.getElementById("update-book-id").value);
   let availability = document
     .getElementById("update-book-isAvailable")
     .value.trim()
@@ -154,32 +149,32 @@ updateBookAvailability.addEventListener("submit", function (event) {
       .classList.remove("hidden");
   }
 
-  if (authorIdInput <= 0) {
+  if (bookIdInput <= 0) {
     updateBookAvailability
-      .querySelector("#update-book-author-id")
+      .querySelector("#update-book-id")
       .classList.add("error-border");
     updateBookAvailability
       .querySelector(".error-message")
       .classList.remove("hidden");
   }
 
-  if (authorIdInput <= 0 || typeof availability !== "boolean") {
+  if (bookIdInput <= 0 || typeof availability !== "boolean") {
     console.error("Invalid Author ID or Availability");
     return;
   }
 
-  const authorIdElement = document.getElementById("update-book-author-id");
+  const bookIdElement = document.getElementById("update-book-id");
   const availableElement = document.getElementById("update-book-isAvailable");
 
   if (
-    authorIdElement.classList.contains("error-border") ||
+    bookIdElement.classList.contains("error-border") ||
     availableElement.classList.contains("error-border")
   ) {
-    authorIdElement.classList.remove("error-border");
+    bookIdElement.classList.remove("error-border");
     availableElement.classList.remove("error-border");
   }
 
-  updateBook({ authorId: authorIdInput, available: availability });
+  updateBook({ id: bookIdInput, available: availability });
 
   updateBookAvailability.reset();
 });
