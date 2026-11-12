@@ -23,6 +23,14 @@ const server = http.createServer((req, res) => {
     });
     res.end();
     return;
+  } else if (url === "/api/authors" && method === "OPTIONS") {
+    res.writeHead(204, {
+      "Access-Control-Allow-Origin": "*", // which website is allowed to send request to server
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS", // what http methods are allowed to be sent to server
+      "Access-Control-Allow-Headers": "Content-Type",
+    });
+    res.end();
+    return;
   }
 
   // books routes
@@ -124,7 +132,8 @@ const server = http.createServer((req, res) => {
             return;
           }
 
-          bookData.id = Math.max(...books.map((el) => el.id)) + 1;
+          bookData.id =
+            books.length >= 1 ? Math.max(...books.map((el) => el.id)) + 1 : 1;
 
           fs.writeFile(
             "./library/library.json",
@@ -297,44 +306,124 @@ const server = http.createServer((req, res) => {
     // authors routes
   } else if (parts.at(2) === "authors") {
     // GET /api/authors
-    if(parts.at(-1) === 'authors' && method === 'GET') {
-      fs.readFile('./library/library.json', 'utf-8', (err,data) => {
-        if(err) {
+    if (parts.at(-1) === "authors" && method === "GET") {
+      fs.readFile("./library/library.json", "utf-8", (err, data) => {
+        if (err) {
           res.writeHead(500, {
-            'Content-type':'text/plain'
-          })
-          res.end('Error reading file!')
+            "Content-type": "text/plain",
+          });
+          res.end("Error reading file!");
           return;
         }
-        
-        const { authors } = JSON.parse(data)
-        
+
+        const { authors } = JSON.parse(data);
+
         res.writeHead(200, {
-          'Content-type:': 'application/json'
-        })
-        res.end(JSON.stringify(authors))
-      })
+          "Content-type": "application/json",
+        });
+        res.end(JSON.stringify(authors));
+      });
       // GET /api/authors/:id
-    } else if (parts.at(2) === 'authors' && !Number.NaN(Number(parts.at(-1))) && methd === 'GET') {
+    } else if (
+      parts.at(2) === "authors" &&
+      !Number.isNaN(Number(parts.at(-1))) &&
+      method === "GET"
+    ) {
       const id = Number(parts.at(-1));
-      
-      fs.readFile('./library/library.json', 'utf-8', (err,data) => {
-        if(err) {
+      console.log(id);
+
+      fs.readFile("./library/library.json", "utf-8", (err, data) => {
+        if (err) {
           res.writeFile(500, {
-            'Content-type': 'application/json'
-          })
-          const {authors} = JSON.parse(data)
-          const authorData = authors.find(el => el.id === id)
-          if(!authorData) {
-            res.writeHead(404, {
-              'Content-type': 'application/json'
-            })
-            res.end(JSON.stringify({message: 'Author does not exist'}))
-            return  
-          }
-          res.end(JSON.stringify(authorData))
+            "Content-type": "text/plain",
+          });
+          res.end("Error reading file");
+          return;
         }
-      })
+
+        const { authors } = JSON.parse(data);
+        const authorData = authors.find((el) => el.id === id);
+        if (!authorData) {
+          res.writeHead(404, {
+            "Content-type": "text/plain",
+          });
+          res.end("Author does not exist");
+          return;
+        }
+        res.writeHead(200, {
+          "Content-type": "application/json",
+        });
+        res.end(JSON.stringify(authorData));
+      });
+      //   POST /api/authors
+    } else if (parts.at(2) === "authors" && method === "POST") {
+      let body = "";
+      req.on("data", (chunk) => {
+        body += chunk;
+      });
+      req.on("end", () => {
+        const authorData = JSON.parse(body);
+        if (authorData.name === "" || typeof authorData.name !== "string") {
+          res.writeHead(400, {
+            "Content-type": "application/json",
+          });
+          res.end(JSON.stringify({ message: "Invalid author name" }));
+          return;
+        }
+
+        fs.readFile("./library/library.json", "utf-8", (err, data) => {
+          if (err) {
+            res.writeHead(500, {
+              "Content-type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            });
+            res.end(JSON.stringify({ message: "Error reading file" }));
+            return;
+          }
+
+          const { authors, books } = JSON.parse(data);
+          if (authors.some((el) => el.name === authorData.authorName)) {
+            res.writeHead(400, {
+              "Content-type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            });
+            res.end(JSON.stringify({ message: "Author already exists" }));
+            return;
+          }
+
+          authorData.id =
+            authors.length >= 1
+              ? Math.max(...authors.map((el) => el.id)) + 1
+              : 1;
+
+          authors.push(authorData);
+          console.log(authors);
+
+          fs.writeFile(
+            "./library/library.json",
+            JSON.stringify({ authors, books }),
+            "utf-8",
+            (err) => {
+              if (err) {
+                res.writeHead(500, {
+                  "Content-type": "application/json",
+                  "Access-Control-Allow-Origin": "*",
+                });
+                res.end(JSON.stringify({ message: "Error writing file" }));
+                return;
+              }
+
+              res.writeHead(200, {
+                "Content-type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+              });
+              res.end(
+                JSON.stringify({ message: "Successfully added author!" }),
+              );
+            },
+          );
+        });
+      });
     }
   }
 });
