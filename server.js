@@ -302,6 +302,68 @@ const server = http.createServer((req, res) => {
           );
         });
       });
+      //   GET /api/books/available
+    } else if (
+      parts.at(2) === "books" &&
+      parts.at(3) === "available" &&
+      parts.at(-1) === "available" &&
+      method === "GET"
+    ) {
+      fs.readFile("./library/library.json", "utf-8", (err, data) => {
+        if (err) {
+          res.writeHead(500, {
+            "Content-type": "text/plain",
+          });
+          res.end("Error reading file!");
+          return;
+        }
+
+        const { books } = JSON.parse(data);
+
+        const availableBooks = books.filter((el) => el.available === true);
+        res.writeHead(200, {
+          "Content-type": "application/json",
+        });
+        res.end(JSON.stringify(availableBooks));
+      });
+      //   GET /api/books/stats
+    } else if (
+      parts.at(2) === "books" &&
+      parts.at(3) === "stats" &&
+      parts.at(-1) === "stats" &&
+      method === "GET"
+    ) {
+      fs.readFile("./library/library.json", "utf-8", (err, data) => {
+        if (err) {
+          res.writeHead(500, {
+            "Content-type": "text/plain",
+          });
+          res.end("Error reading file!");
+          return;
+        }
+
+        const { books } = JSON.parse(data);
+        const stats = books.reduce(
+          (acc, el) => {
+            acc.totalBooks += 1;
+            el.available === true
+              ? (acc.availableBooks += 1)
+              : (acc.checkedOutBooks += 1);
+
+            return acc;
+          },
+          {
+            totalBooks: 0,
+            availableBooks: 0,
+            checkedOutBooks: 0,
+          },
+        );
+
+        res.writeHead(200, {
+          "Content-type": "application/json",
+        });
+        res.end(JSON.stringify(stats));
+      });
     }
     // authors routes
   } else if (parts.at(2) === "authors") {
