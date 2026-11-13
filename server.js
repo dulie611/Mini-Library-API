@@ -364,6 +364,12 @@ const server = http.createServer((req, res) => {
         });
         res.end(JSON.stringify(stats));
       });
+    } else {
+      res.writeHead(404, {
+        "Content-type": "text/plain",
+      });
+      res.end("Page not found");
+      return;
     }
     // authors routes
   } else if (parts.at(2) === "authors") {
@@ -507,6 +513,12 @@ const server = http.createServer((req, res) => {
         const { books } = JSON.parse(data);
         res.end(JSON.stringify(books.filter((el) => el.authorId === authorID)));
       });
+    } else {
+      res.writeHead(404, {
+        "Content-type": "text/plain",
+      });
+      res.end("Page not found");
+      return;
     }
   }
 });
