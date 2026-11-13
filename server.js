@@ -135,6 +135,8 @@ const server = http.createServer((req, res) => {
           bookData.id =
             books.length >= 1 ? Math.max(...books.map((el) => el.id)) + 1 : 1;
 
+          books.push(bookData);
+
           fs.writeFile(
             "./library/library.json",
             JSON.stringify({ authors, books }),
@@ -429,10 +431,20 @@ const server = http.createServer((req, res) => {
       parts.at(4) === "books" &&
       method === "GET"
     ) {
-      res.writeHead(200, {
-        "Content-type": "text/plain",
+      const authorID = Number(parts.at(3));
+
+      fs.readFile("./library/library.json", "utf-8", (err, data) => {
+        if (err) {
+          res.writeHead(500, {
+            "Content-type": "text/plain",
+          });
+          res.end("Error reading file");
+          return;
+        }
+
+        const { books } = JSON.parse(data);
+        res.end(JSON.stringify(books.filter((el) => el.authorId === authorID)));
       });
-      res.end("Request received!");
     }
   }
 });
