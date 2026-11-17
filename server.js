@@ -449,7 +449,7 @@ const server = http.createServer((req, res) => {
           }
 
           const { authors, books } = JSON.parse(data);
-          if (authors.some((el) => el.name === authorData.authorName)) {
+          if (authors.some((el) => el.name === authorData.name)) {
             res.writeHead(400, {
               "Content-type": "application/json",
               "Access-Control-Allow-Origin": "*",
