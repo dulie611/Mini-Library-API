@@ -119,6 +119,7 @@ const server = http.createServer((req, res) => {
               "Content-type": "application/json",
             });
             res.end(JSON.stringify({ message: "Error reading file." }));
+            return;
           }
 
           const { authors, books } = JSON.parse(data);
@@ -147,6 +148,7 @@ const server = http.createServer((req, res) => {
                   "Content-type": "application/json",
                 });
                 res.end(JSON.stringify({ message: "Error writing file!" }));
+                return;
               }
               res.writeHead(201, {
                 "Content-type": "application/json",
@@ -200,7 +202,7 @@ const server = http.createServer((req, res) => {
           const bookToUpdate = books.find((el) => el.id === id);
 
           if (!bookToUpdate) {
-            res.writeHead(400, {
+            res.writeHead(404, {
               "Content-type": "application/json",
               "Access-Control-Allow-Origin": "*",
             });
@@ -268,7 +270,7 @@ const server = http.createServer((req, res) => {
 
           const bookToDelete = books.find((el) => el.id === id);
           if (!bookToDelete) {
-            res.writeHead(400, {
+            res.writeHead(404, {
               "Content-type": "application/json",
               "Access-Control-Allow-Origin": "*",
             });
@@ -401,7 +403,7 @@ const server = http.createServer((req, res) => {
 
       fs.readFile("./library/library.json", "utf-8", (err, data) => {
         if (err) {
-          res.writeFile(500, {
+          res.writeHead(500, {
             "Content-type": "text/plain",
           });
           res.end("Error reading file");
@@ -509,7 +511,16 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        const { books } = JSON.parse(data);
+        const { authors, books } = JSON.parse(data);
+        const author = authors.find((el) => el.id === authorID);
+
+        if (!author) {
+          res.writeHead(404, {
+            "Content-type": "text/plain",
+          });
+          res.end("Author does not exist.");
+          return;
+        }
         res.end(JSON.stringify(books.filter((el) => el.authorId === authorID)));
       });
     } else {
