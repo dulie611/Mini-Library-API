@@ -163,6 +163,7 @@ const server = http.createServer((req, res) => {
       !Number.isNaN(Number(parts.at(-1))) &&
       method === "PATCH"
     ) {
+      const id = Number(parts.at(-1));
       let body = "";
       req.on("data", (chunk) => {
         body += chunk;
@@ -196,7 +197,7 @@ const server = http.createServer((req, res) => {
           }
 
           const { books, authors } = JSON.parse(data);
-          const bookToUpdate = books.find((el) => el.id === bookData.id);
+          const bookToUpdate = books.find((el) => el.id === id);
 
           if (!bookToUpdate) {
             res.writeHead(400, {
