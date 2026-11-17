@@ -67,10 +67,6 @@ const deleteBook = async function (authorId) {
       `http://127.0.0.1:8000/api/books/${authorId}`,
       {
         method: "DELETE",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify(authorId),
       },
     );
 

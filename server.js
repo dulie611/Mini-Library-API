@@ -239,14 +239,12 @@ const server = http.createServer((req, res) => {
       !Number.isNaN(Number(parts.at(-1))) &&
       method === "DELETE"
     ) {
+      const id = Number(parts.at(-1));
       let body = "";
       req.on("data", (chunk) => {
         body += chunk;
       });
       req.on("end", () => {
-        const bookIdData = JSON.parse(body);
-        console.log(bookIdData);
-
         if (bookIdData <= 0 || typeof bookIdData !== "number") {
           res.writeHead(400, {
             "Content-type": "application/json",
@@ -268,7 +266,7 @@ const server = http.createServer((req, res) => {
 
           const { authors, books } = JSON.parse(data);
 
-          const bookToDelete = books.find((el) => el.id === bookIdData);
+          const bookToDelete = books.find((el) => el.id === id);
           if (!bookToDelete) {
             res.writeHead(400, {
               "Content-type": "application/json",
